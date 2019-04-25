@@ -25,6 +25,8 @@ var axios = require("axios");
 var Spotify = require("node-spotify-api");
 var spotify = new Spotify(keys.spotify);
 
+var fs = require("fs");
+
 
 
 // 3. To retrieve the data that will power this app, you'll need to send requests using the `axios` package to the Bands in Town, Spotify and OMDB APIs. You'll find these Node packages crucial for your assignment.
@@ -44,6 +46,9 @@ var song = "";
 var movie = "";
 var queryUrl = "";
 
+var text = "";
+
+// make switch case into functions?
 switch (command) {
     case "concert-this": // node liri.js concert-this <artist/band name here>
         // * This will search the Bands in Town Artist Events API(`"https://rest.bandsintown.com/artists/" + artist + "/events?app_id=codingbootcamp"`) for an artist and render the following information about each event to the terminal:
@@ -114,6 +119,17 @@ switch (command) {
         // * Using the`fs` Node package, LIRI will take the text inside of random.txt and then use it to call one of LIRI's commands.
         // * It should run`spotify-this-song` for "I Want it That Way," as follows the text in `random.txt`.
         // * Edit the text in random.txt to test out the feature for movie - this and concert - this.
+		fs.readFile("movies.txt", "utf8", function(err, data) {
+			if (err) {
+				return console.log(err);
+			}
+
+			var dataArr = data.toLowerCase().split(",");
+			command = dataArr[0];
+			userInput = dataArr[1].replace(" ","+"); //remove quotes?
+
+			// * It should run`spotify-this-song` for "I Want it That Way," as follows the text in `random.txt`.
+		});
         break;
 }
 
@@ -122,3 +138,11 @@ switch (command) {
 // * In addition to logging the data to your terminal/bash window, output the data to a .txt file called `log.txt`.
 // * Make sure you append each command you run to the `log.txt` file. 
 // * Do not overwrite your file each time you run a command.
+
+fs.appendFile("log.txt", text, function(err) { // am I logging commands or results??
+	if (err) {
+		return console.log(err);
+	}
+
+	//console.log("log.txt was updated!");
+});
