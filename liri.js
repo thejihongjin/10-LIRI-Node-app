@@ -15,8 +15,6 @@
 
 
 
-
-
 require("dotenv").config();
 
 var keys = require("./keys.js");
@@ -26,6 +24,7 @@ var Spotify = require("node-spotify-api");
 var spotify = new Spotify(keys.spotify);
 
 var fs = require("fs");
+var moment = require("moment");
 
 
 
@@ -39,7 +38,7 @@ var fs = require("fs");
 
 
 var command = process.argv[2];
-var userInput = process.argv.slice(3).join("+").toLowerCase(); // remove punctuation??
+var userInput = process.argv.slice(3).join(" ").toLowerCase(); // remove punctuation??
 
 var artist = "";
 var song = "";
@@ -50,59 +49,70 @@ var text = "";
 
 // make switch case into functions?
 switch (command) {
-    case "concert-this": // node liri.js concert-this <artist/band name here>
-        // * This will search the Bands in Town Artist Events API(`"https://rest.bandsintown.com/artists/" + artist + "/events?app_id=codingbootcamp"`) for an artist and render the following information about each event to the terminal:
-        // * Name of the venue
-        // * Venue location
-        // * Date of the Event(use moment to format this as "MM/DD/YYYY")
-		artist = userInput;
-		queryUrl = "https://rest.bandsintown.com/artists/" + artist + "/events?app_id=codingbootcamp";
-		axios.get(queryUrl).then(
-			function(response) {
-				console.log(response);
-				//console.log("Venue name: " + response.);
-				//console.log("Location: " + response.);
-				//console.log("Event date: " + response.);
-			}
-		);
-        break;
+	case "concert-this": // node liri.js concert-this <artist/band name here>
+		if (userInput !== "") {
+			artist = userInput.replace(" ", "%20").replace("/", "%252F").replace("?", "%253F").replace("*", "%252A").replace('"', "%27C");
+			queryUrl = "https://rest.bandsintown.com/artists/" + artist + "/events?app_id=codingbootcamp";
+			axios.get(queryUrl).then(
+				function (response) {
+					if (response.data.length) {
+						var venue = response.data[0].venue.name;
+						var location = "";
+						if (response.data[0].venue.city) {
+							location += response.data[0].venue.city + ", ";
+						}
 
-    case "spotify-this-song": // node liri.js spotify-this-song <song name here>
-        // * This will show the following information about the song in your terminal / bash window
-        // * Artist(s)
-        // * The song's name
-        // * A preview link of the song from Spotify
-        // * The album that the song is from
-        // * You will utilize the[node - spotify - api](https://www.npmjs.com/package/node-spotify-api) package in order to retrieve song information from the Spotify API.
+						if (response.data[0].venue.region) {
+							location += response.data[0].venue.region + ", ";
+						}
 
-		
+						if (response.data[0].venue.country) {
+							location += response.data[0].venue.country;
+						}
+						var date = response.data[0].datetime;
+						date = moment(date).format("dddd, MMMM D, YYYY h:mm A");
+						console.log("Venue name: " + venue);
+						console.log("Location: " + location);
+						console.log("Event date: " + date);
+					} else {
+						console.log("No events for this artist.")
+					}
+				}
+			);
+		} else {
+			console.log("Please input artist.");
+		}
+		break;
+
+	case "spotify-this-song": // node liri.js spotify-this-song <song name here>
 		if (userInput !== "") {
 			song = userInput;
 		} else {
-			song = "the+sign"; // If no song is provided then your program will default to "The Sign" by Ace of Base.
+			song = "the sign ace of base"; // If no song is provided then your program will default to "The Sign" by Ace of Base.
 		}
-		spotify.search({ type: 'track', query: song}).then(
-			function(response) {
-				console.log(response);
-				//console.log("Artist: " + response.);
-				//console.log("Song: " + response.);
-				//console.log("Album: " + response.);
-				//console.log("Preview: " + response.);
+		spotify.search({ type: 'track', query: song }).then(
+			function (response) {
+				// console.log(response.tracks.items[0]);
+				console.log("Artist: " + response.tracks.items[0].artists[0].name);
+				console.log("Song: " + response.tracks.items[0].name);
+				console.log("Album: " + response.tracks.items[0].album.name);
+				console.log("Preview: " + response.tracks.items[0].preview_url);
 			}
 		);
-        break;
+		break;
 
-    case "movie-this": // node liri.js movie-this <movie name here>
+	case "movie-this": // node liri.js movie-this <movie name here>
+		console.log(command);
 		if (userInput !== "") {
 			movie = userInput;
 		} else {
-			movie = "mr+nobody"; // If the user doesn't type a movie in, the program will output data for the movie 'Mr. Nobody.'
+			movie = "mr nobody"; // If the user doesn't type a movie in, the program will output data for the movie 'Mr. Nobody.'
 		}
-		
+
 		console.log(movie);
 		queryUrl = "http://www.omdbapi.com/?t=" + movie + "&y=&plot=short&apikey=trilogy";
 		axios.get(queryUrl).then(
-			function(response) {
+			function (response) {
 				console.log("Title: " + response.data.Title);
 				console.log("Release Year: " + response.data.Year);
 				console.log("IMDB Rating: " + response.data.Ratings[0].Value);
@@ -113,24 +123,26 @@ switch (command) {
 				console.log("Actors: " + response.data.Actors);
 			}
 		);
-        break;
+		break;
 
-    case "do-what-it-says": // 4. `node liri.js do-what-it-says`
-        // * Using the`fs` Node package, LIRI will take the text inside of random.txt and then use it to call one of LIRI's commands.
-        // * It should run`spotify-this-song` for "I Want it That Way," as follows the text in `random.txt`.
-        // * Edit the text in random.txt to test out the feature for movie - this and concert - this.
-		fs.readFile("movies.txt", "utf8", function(err, data) {
+	case "do-what-it-says": // 4. `node liri.js do-what-it-says`
+		// * Using the`fs` Node package, LIRI will take the text inside of random.txt and then use it to call one of LIRI's commands.
+		// * It should run`spotify-this-song` for "I Want it That Way," as follows the text in `random.txt`.
+		// * Edit the text in random.txt to test out the feature for movie - this and concert - this.
+
+		console.log(command);
+		fs.readFile("movies.txt", "utf8", function (err, data) {
 			if (err) {
 				return console.log(err);
 			}
 
 			var dataArr = data.toLowerCase().split(",");
 			command = dataArr[0];
-			userInput = dataArr[1].replace(" ","+"); //remove quotes?
+			userInput = dataArr[1].replace(" ", "+"); //remove quotes?
 
 			// * It should run`spotify-this-song` for "I Want it That Way," as follows the text in `random.txt`.
 		});
-        break;
+		break;
 }
 
 
@@ -139,7 +151,7 @@ switch (command) {
 // * Make sure you append each command you run to the `log.txt` file. 
 // * Do not overwrite your file each time you run a command.
 
-fs.appendFile("log.txt", text, function(err) { // am I logging commands or results??
+fs.appendFile("log.txt", text, function (err) { // am I logging commands or results??
 	if (err) {
 		return console.log(err);
 	}
