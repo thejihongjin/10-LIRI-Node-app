@@ -136,10 +136,10 @@ function movieThis() {
 }
 
 function logData(text) {
-	fs.appendFile("log.txt", text, function (err) {
+	fs.appendFile("log.txt", text + "\n\n", function (err) {
 		if (err) {
 			return console.log(err);
 		}
-		console.log(text);
+		console.log(text + "\n");
 	});
 }
