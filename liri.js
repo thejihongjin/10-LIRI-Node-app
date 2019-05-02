@@ -46,6 +46,9 @@ function doUserInput(command) {
 		case "movie-this": // node liri.js movie-this <movie name here>
 			movieThis();
 			break;
+		default:
+			console.log("Please input one of the following: \nconcert-this <artist/band name> \nspotify-this-song <song name> \nmovie-this <movie name> \ndo-what-it-says")
+			break;
 	}
 }
 
