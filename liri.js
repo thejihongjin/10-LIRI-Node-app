@@ -27,7 +27,6 @@ var fs = require("fs");
 var moment = require("moment");
 
 
-
 // 3. To retrieve the data that will power this app, you'll need to send requests using the `axios` package to the Bands in Town, Spotify and OMDB APIs. You'll find these Node packages crucial for your assignment.
 //    * [Node-Spotify-API](https://www.npmjs.com/package/node-spotify-api)
 //    * [Axios](https://www.npmjs.com/package/axios)
@@ -36,9 +35,10 @@ var moment = require("moment");
 //    * [DotEnv](https://www.npmjs.com/package/dotenv)
 
 
-
 var command = process.argv[2];
-var userInput = process.argv.slice(3).join(" ").toLowerCase(); // remove punctuation??
+var userInput = process.argv.slice(3).join(" ").toLowerCase();
+// console.log(command);
+// console.log(userInput);
 
 var artist = "";
 var song = "";
@@ -47,102 +47,43 @@ var queryUrl = "";
 
 var text = "";
 
+if (command === "do-what-it-says") { // node liri.js do-what-it-says
+	// * Using the`fs` Node package, LIRI will take the text inside of random.txt and then use it to call one of LIRI's commands.
+	// * It should run`spotify-this-song` for "I Want it That Way," as follows the text in `random.txt`.
+	// * Edit the text in random.txt to test out the feature for movie - this and concert - this.
+
+	fs.readFile("random.txt", "utf8", function (err, data) {
+		if (err) {
+			return console.log(err);
+		}
+
+		var dataArr = data.toLowerCase().split("\"").join("").split(",");
+		command = dataArr[0];
+		userInput = dataArr[1];
+
+		doUserInput(command); // * It should run`spotify-this-song` for "I Want it That Way," as follows the text in `random.txt`.
+	});
+} else {
+	doUserInput(command);
+}
+
+// doUserInput(command);
+
 // make switch case into functions?
-switch (command) {
-	case "concert-this": // node liri.js concert-this <artist/band name here>
-		if (userInput !== "") {
-			artist = userInput.replace(" ", "%20").replace("/", "%252F").replace("?", "%253F").replace("*", "%252A").replace('"', "%27C");
-			queryUrl = "https://rest.bandsintown.com/artists/" + artist + "/events?app_id=codingbootcamp";
-			axios.get(queryUrl).then(
-				function (response) {
-					if (response.data.length) {
-						var venue = response.data[0].venue.name;
-						var location = "";
-						if (response.data[0].venue.city) {
-							location += response.data[0].venue.city + ", ";
-						}
+function doUserInput(command) {
+	switch (command) {
+		case "concert-this": // node liri.js concert-this <artist/band name here>
+			concertThis();
+			break;
 
-						if (response.data[0].venue.region) {
-							location += response.data[0].venue.region + ", ";
-						}
+		case "spotify-this-song": // node liri.js spotify-this-song <song name here>
+			spotifyThisSong();
+			break;
 
-						if (response.data[0].venue.country) {
-							location += response.data[0].venue.country;
-						}
-						var date = response.data[0].datetime;
-						date = moment(date).format("dddd, MMMM D, YYYY h:mm A");
-						console.log("Venue name: " + venue);
-						console.log("Location: " + location);
-						console.log("Event date: " + date);
-					} else {
-						console.log("No events for this artist.")
-					}
-				}
-			);
-		} else {
-			console.log("Please input artist.");
-		}
-		break;
-
-	case "spotify-this-song": // node liri.js spotify-this-song <song name here>
-		if (userInput !== "") {
-			song = userInput;
-		} else {
-			song = "the sign ace of base"; // If no song is provided then your program will default to "The Sign" by Ace of Base.
-		}
-		spotify.search({ type: 'track', query: song }).then(
-			function (response) {
-				// console.log(response.tracks.items[0]);
-				console.log("Artist: " + response.tracks.items[0].artists[0].name);
-				console.log("Song: " + response.tracks.items[0].name);
-				console.log("Album: " + response.tracks.items[0].album.name);
-				console.log("Preview: " + response.tracks.items[0].preview_url);
-			}
-		);
-		break;
-
-	case "movie-this": // node liri.js movie-this <movie name here>
-		console.log(command);
-		if (userInput !== "") {
-			movie = userInput;
-		} else {
-			movie = "mr nobody"; // If the user doesn't type a movie in, the program will output data for the movie 'Mr. Nobody.'
-		}
-
-		console.log(movie);
-		queryUrl = "http://www.omdbapi.com/?t=" + movie + "&y=&plot=short&apikey=trilogy";
-		axios.get(queryUrl).then(
-			function (response) {
-				console.log("Title: " + response.data.Title);
-				console.log("Release Year: " + response.data.Year);
-				console.log("IMDB Rating: " + response.data.Ratings[0].Value);
-				console.log("Rotten Tomatoes Rating: " + response.data.Ratings[1].Value);
-				console.log("Country: " + response.data.Country);
-				console.log("Language: " + response.data.Language);
-				console.log("Plot: " + response.data.Plot);
-				console.log("Actors: " + response.data.Actors);
-			}
-		);
-		break;
-
-	case "do-what-it-says": // 4. `node liri.js do-what-it-says`
-		// * Using the`fs` Node package, LIRI will take the text inside of random.txt and then use it to call one of LIRI's commands.
-		// * It should run`spotify-this-song` for "I Want it That Way," as follows the text in `random.txt`.
-		// * Edit the text in random.txt to test out the feature for movie - this and concert - this.
-
-		console.log(command);
-		fs.readFile("movies.txt", "utf8", function (err, data) {
-			if (err) {
-				return console.log(err);
-			}
-
-			var dataArr = data.toLowerCase().split(",");
-			command = dataArr[0];
-			userInput = dataArr[1].replace(" ", "+"); //remove quotes?
-
-			// * It should run`spotify-this-song` for "I Want it That Way," as follows the text in `random.txt`.
-		});
-		break;
+		case "movie-this": // node liri.js movie-this <movie name here>
+			movieThis();
+			break;
+	}
 }
 
 
@@ -158,3 +99,78 @@ fs.appendFile("log.txt", text, function (err) { // am I logging commands or resu
 
 	//console.log("log.txt was updated!");
 });
+
+
+function concertThis() {
+	if (userInput !== "") {
+		artist = encodeURIComponent(userInput);
+		queryUrl = "https://rest.bandsintown.com/artists/" + artist + "/events?app_id=codingbootcamp";
+		axios.get(queryUrl).then(
+			function (response) {
+				if (response.data.length) {
+					var venue = response.data[0].venue.name;
+					var location = "";
+					if (response.data[0].venue.city) {
+						location += response.data[0].venue.city + ", ";
+					}
+
+					if (response.data[0].venue.region) {
+						location += response.data[0].venue.region + ", ";
+					}
+
+					if (response.data[0].venue.country) {
+						location += response.data[0].venue.country;
+					}
+					var date = response.data[0].datetime;
+					date = moment(date).format("dddd, MMMM D, YYYY h:mm A");
+					console.log("Venue name: " + venue);
+					console.log("Location: " + location);
+					console.log("Event date: " + date);
+				} else {
+					console.log("No events for this artist.")
+				}
+			}
+		);
+	} else {
+		console.log("Please input artist.");
+	}
+}
+
+function spotifyThisSong() {
+	if (userInput !== "") {
+		song = userInput;
+	} else {
+		song = "the sign ace of base"; // default song
+	}
+	spotify.search({ type: 'track', query: song }).then(
+		function (response) {
+			// console.log(response.tracks.items[0]);
+			console.log("Artist: " + response.tracks.items[0].artists[0].name);
+			console.log("Song: " + response.tracks.items[0].name);
+			console.log("Album: " + response.tracks.items[0].album.name);
+			console.log("Preview: " + response.tracks.items[0].preview_url);
+		}
+	);
+}
+
+function movieThis() {
+	if (userInput !== "") {
+		movie = encodeURIComponent(userInput);
+	} else {
+		movie = encodeURIComponent("mr.+nobody"); // default movie
+	}
+
+	queryUrl = "http://www.omdbapi.com/?t=" + movie + "&y=&plot=short&apikey=trilogy";
+	axios.get(queryUrl).then(
+		function (response) {
+			console.log("Title: " + response.data.Title);
+			console.log("Release Year: " + response.data.Year);
+			console.log("IMDB Rating: " + response.data.Ratings[0].Value);
+			console.log("Rotten Tomatoes Rating: " + response.data.Ratings[1].Value);
+			console.log("Country: " + response.data.Country);
+			console.log("Language: " + response.data.Language);
+			console.log("Plot: " + response.data.Plot);
+			console.log("Actors: " + response.data.Actors);
+		}
+	);
+}
