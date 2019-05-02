@@ -15,7 +15,7 @@ LIRI takes in one of the following commands:
        * Date of the event (formatted as "MM/DD/YYYY" using moment)
      ```
 
-![concert-this input](./images/placeholder.png)
+![concert-this input](./images/concert-this-input.png)
 
 2. `node liri.js spotify-this-song '<song name here>'`
    * This searches the Spotify API and prints the following information in the terminal:
@@ -25,10 +25,10 @@ LIRI takes in one of the following commands:
        * The album that the song is from
        * A preview link of the song from Spotify
      ```
-![spotify-this-song input](./images/placeholder.png)
+![spotify-this-song input](./images/spotify-this-song-input.png)
 
    * If no song is provided with this command, the song defaults to "The Sign" by Ace of Base
-![spotify-this-song default](./images/placeholder.png)
+![spotify-this-song default](./images/spotify-this-song-default.png)
 
 3. `node liri.js movie-this '<movie name here>'`
    * This searches the OMDB API and prints the following information in the terminal:
@@ -42,27 +42,16 @@ LIRI takes in one of the following commands:
        * Plot of the movie
        * Actors in the movie
      ```
-![movie-this input](./images/placeholder.png)
+![movie-this input](./images/movie-this-input.png)
 
    * If no movie is provided with this command, the movie defaults to 'Mr. Nobody'
-![movie-this default](./images/placeholder.png)
+![movie-this default](./images/movie-this-default.png)
 
 4. `node liri.js do-what-it-says`
    * This uses the `fs` Node package to take the text inside of random.txt and use it to call one of LIRI's commands.
      * It runs `spotify-this-song` for "I Want it That Way," as follows the text in `random.txt`.
      * You can edit the text in random.txt to test out the feature for movie-this and concert-this.
-![do-what-it-says default](./images/placeholder.png)
+![do-what-it-says default](./images/do-what-it-says.png)
 
 * In addition to printing the data to the terminal, each command also logs (i.e., appends) the data to a .txt file called `log.txt`.
-![log.txt](./images/placeholder.png)
-
-
-
-
-
-
-
-
-   
-## Submission Guide
-If you haven't written a markdown file yet, [click here for a rundown](https://guides.github.com/features/mastering-markdown/), or just take a look at the raw file of these instructions.
+![log.txt](./images/logtxt.png)
