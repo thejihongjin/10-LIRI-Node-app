@@ -1,9 +1,3 @@
-// # LIRI Bot
-// ### Overview
-// In this assignment, you will make LIRI. LIRI is like iPhone's SIRI. However, while SIRI is a Speech Interpretation and Recognition Interface, LIRI is a _Language_ Interpretation and Recognition Interface. LIRI will be a command line node app that takes in parameters and gives you back data.
-
-// ### Before You Begin
-// 1. LIRI will search Spotify for songs, Bands in Town for concerts, and OMDB for movies.
 
 // ## Submission Guide
 // Create and use a standard GitHub repository. As this is a CLI App, it cannot be deployed to GitHub pages or Heroku. This time you'll need to include screenshots, a GIF, and/or a video showing us that you have the app working with no bugs. You can include these screenshots/GIFs or a link to a video in a `README.md` file.
@@ -26,32 +20,16 @@ var spotify = new Spotify(keys.spotify);
 var fs = require("fs");
 var moment = require("moment");
 
-
-// 3. To retrieve the data that will power this app, you'll need to send requests using the `axios` package to the Bands in Town, Spotify and OMDB APIs. You'll find these Node packages crucial for your assignment.
-//    * [Node-Spotify-API](https://www.npmjs.com/package/node-spotify-api)
-//    * [Axios](https://www.npmjs.com/package/axios)
-//      * You'll use Axios to grab data from the [OMDB API](http://www.omdbapi.com) and the [Bands In Town API](http://www.artists.bandsintown.com/bandsintown-api)
-//    * [Moment](https://www.npmjs.com/package/moment)
-//    * [DotEnv](https://www.npmjs.com/package/dotenv)
-
-
 var command = process.argv[2];
 var userInput = process.argv.slice(3).join(" ").toLowerCase();
-// console.log(command);
-// console.log(userInput);
 
 var artist = "";
 var song = "";
 var movie = "";
 var queryUrl = "";
-
 var text = "";
 
 if (command === "do-what-it-says") { // node liri.js do-what-it-says
-	// * Using the`fs` Node package, LIRI will take the text inside of random.txt and then use it to call one of LIRI's commands.
-	// * It should run`spotify-this-song` for "I Want it That Way," as follows the text in `random.txt`.
-	// * Edit the text in random.txt to test out the feature for movie - this and concert - this.
-
 	fs.readFile("random.txt", "utf8", function (err, data) {
 		if (err) {
 			return console.log(err);
@@ -67,9 +45,7 @@ if (command === "do-what-it-says") { // node liri.js do-what-it-says
 	doUserInput(command);
 }
 
-// doUserInput(command);
 
-// make switch case into functions?
 function doUserInput(command) {
 	switch (command) {
 		case "concert-this": // node liri.js concert-this <artist/band name here>
@@ -91,14 +67,15 @@ function doUserInput(command) {
 // * In addition to logging the data to your terminal/bash window, output the data to a .txt file called `log.txt`.
 // * Make sure you append each command you run to the `log.txt` file. 
 // * Do not overwrite your file each time you run a command.
-
-fs.appendFile("log.txt", text, function (err) { // am I logging commands or results??
-	if (err) {
-		return console.log(err);
-	}
-
-	//console.log("log.txt was updated!");
-});
+function logData(text) {
+	fs.appendFile("log.txt", text, function (err) { // am I logging commands or results??
+		if (err) {
+			return console.log(err);
+		}
+	
+		console.log(text);
+	});
+}
 
 
 function concertThis() {
@@ -123,9 +100,14 @@ function concertThis() {
 					}
 					var date = response.data[0].datetime;
 					date = moment(date).format("dddd, MMMM D, YYYY h:mm A");
-					console.log("Venue name: " + venue);
-					console.log("Location: " + location);
-					console.log("Event date: " + date);
+
+					var concertData = [
+						"Venue name: " + venue,
+						"Location: " + location,
+						"Event date: " + date
+					].join("\n");
+					// console.log(concertData);
+					logData(concertData);
 				} else {
 					console.log("No events for this artist.")
 				}
@@ -145,10 +127,14 @@ function spotifyThisSong() {
 	spotify.search({ type: 'track', query: song }).then(
 		function (response) {
 			// console.log(response.tracks.items[0]);
-			console.log("Artist: " + response.tracks.items[0].artists[0].name);
-			console.log("Song: " + response.tracks.items[0].name);
-			console.log("Album: " + response.tracks.items[0].album.name);
-			console.log("Preview: " + response.tracks.items[0].preview_url);
+			var spotifyData = [
+				"Artist: " + response.tracks.items[0].artists[0].name,
+				"Song: " + response.tracks.items[0].name,
+				"Album: " + response.tracks.items[0].album.name,
+				"Preview: " + response.tracks.items[0].preview_url
+			].join("\n");
+			// console.log(spotifyData);
+			logData(spotifyData);
 		}
 	);
 }
@@ -163,14 +149,18 @@ function movieThis() {
 	queryUrl = "http://www.omdbapi.com/?t=" + movie + "&y=&plot=short&apikey=trilogy";
 	axios.get(queryUrl).then(
 		function (response) {
-			console.log("Title: " + response.data.Title);
-			console.log("Release Year: " + response.data.Year);
-			console.log("IMDB Rating: " + response.data.Ratings[0].Value);
-			console.log("Rotten Tomatoes Rating: " + response.data.Ratings[1].Value);
-			console.log("Country: " + response.data.Country);
-			console.log("Language: " + response.data.Language);
-			console.log("Plot: " + response.data.Plot);
-			console.log("Actors: " + response.data.Actors);
+			var movieData = [
+				"Title: " + response.data.Title,
+				"Release Year: " + response.data.Year,
+				"IMDB Rating: " + response.data.Ratings[0].Value,
+				"Rotten Tomatoes Rating: " + response.data.Ratings[1].Value,
+				"Country: " + response.data.Country,
+				"Language: " + response.data.Language,
+				"Plot: " + response.data.Plot,
+				"Actors: " + response.data.Actors
+			].join("\n");
+			// console.log(movieData);
+			logData(movieData);
 		}
 	);
 }
